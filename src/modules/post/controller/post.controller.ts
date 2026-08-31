@@ -1,11 +1,12 @@
 import { NextFunction, Request, Response } from "express";
-import { getUserFromJwt } from "../../utils/token.util";
+import { getUserFromJwt } from "../../../utils/token.util";
 import {
   createPostById,
   deletePostById,
   getAllPost,
+  getPostById,
   updatePostById,
-} from "./post.service";
+} from "../services/post.service";
 
 export const createPost = async (
   req: Request,
@@ -35,7 +36,34 @@ export const getPosts = async (
     const page: number = Number(req.query.page) || 1;
     const limit: number = Number(req.query.limit) || 10;
 
-    const result = await getAllPost(page, limit);
+    const result = await getAllPost({ page, limit });
+
+    return res.status(200).json({
+      status: "success",
+      message: "Berhasil mengambil data postingan",
+      data: result.data,
+      pagination: result.pagination,
+    });
+  } catch (error: any) {
+    next(error);
+  }
+};
+
+export const getPost = async (
+  req: Request,
+  res: Response,
+  next: NextFunction,
+) => {
+  try {
+    const page: number = Number(req.query.page) || 1;
+    const limit: number = Number(req.query.limit) || 10;
+    const { id } = getUserFromJwt(req);
+
+    const result = await getPostById({
+      user_id: id,
+      page,
+      limit,
+    });
 
     return res.status(200).json({
       status: "success",

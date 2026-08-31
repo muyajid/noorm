@@ -1,11 +1,12 @@
-import { db } from "../../configs/db.config";
-import { createError } from "../../exceptions/error.exception";
+import { db } from "../../../configs/db.config";
+import { createError } from "../../../exceptions/error.exception";
 import {
   CreatePostReq,
-  GetPaginationRes,
+  GetPaginationReq,
+  PaginationRes,
   PostRes,
   UpdatePostReq,
-} from "./post.dto";
+} from "../post/post.dto";
 
 export const createPostById = async (py: CreatePostReq): Promise<PostRes> => {
   try {
@@ -32,13 +33,70 @@ export const createPostById = async (py: CreatePostReq): Promise<PostRes> => {
 };
 
 export const getAllPost = async (
-  page: number,
-  limit: number,
-): Promise<GetPaginationRes> => {
+  py: GetPaginationReq,
+): Promise<PaginationRes> => {
   try {
     const result = await db.query<{ count: string }>(
       `SELECT COUNT(*) FROM posts`,
     );
+
+    const { limit, page } = py;
+
+    const total = Number(result.rows[0].count);
+    const totalPages = Math.ceil(total / limit);
+
+    const skip = (page - 1) * limit;
+    const posts = await db.query<PostRes>(
+      `SELECT 
+        p.id, p.title, p.content, p.created_at,
+        COUNT(l.id) AS like_count
+      FROM posts p
+      LEFT JOIN likes l ON p.id = l.post_id
+      GROUP BY p.id
+      ORDER BY created_at DESC
+      LIMIT $1
+      OFFSET $2
+      `,
+      [limit, skip],
+    );
+
+    const data: PostRes[] = posts.rows.map((p) => ({
+      id: p.id,
+      title: p.title,
+      content: p.content,
+      created_at: p.created_at,
+      like_count: Number(p.like_count),
+    }));
+
+    const nextPage = page < totalPages ? page + 1 : null;
+
+    return {
+      data,
+      pagination: {
+        page,
+        nextPage,
+        limit,
+        skip,
+        total,
+        totalPages,
+      },
+    };
+  } catch (error: any) {
+    console.error(`Post service error: ${error.message}`);
+    throw error;
+  }
+};
+
+export const getPostById = async (
+  py: GetPaginationReq,
+): Promise<PaginationRes> => {
+  try {
+    const result = await db.query<{ count: string }>(
+      `SELECT COUNT(*) FROM posts WHERE user_id = $1`,
+      [py.user_id],
+    );
+
+    const { limit, page } = py;
 
     const total = Number(result.rows[0].count);
     const totalPages = Math.ceil(total / limit);
@@ -46,14 +104,32 @@ export const getAllPost = async (
     const skip = (page - 1) * limit;
 
     const posts = await db.query<PostRes>(
-      `SELECT id, title, content, created_at FROM posts ORDER BY created_at DESC LIMIT $1 OFFSET $2`,
-      [limit, skip],
+      `SELECT 
+        p.id, p.title, p.content, p.created_at,
+        COUNT(l.id) AS like_count
+      FROM posts p
+      LEFT JOIN likes l ON p.id = l.post_id
+      WHERE user_id = $3
+      GROUP BY p.id
+      ORDER BY created_at DESC
+      LIMIT $1
+      OFFSET $2
+      `,
+      [limit, skip, py.user_id],
     );
+
+    const data: PostRes[] = posts.rows.map((p) => ({
+      id: p.id,
+      title: p.title,
+      content: p.content,
+      created_at: p.created_at,
+      like_count: Number(p.like_count),
+    }));
 
     const nextPage = page < totalPages ? page + 1 : null;
 
     return {
-      data: posts.rows,
+      data,
       pagination: {
         page,
         nextPage,

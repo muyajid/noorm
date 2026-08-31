@@ -8,11 +8,18 @@ export interface PostRes {
   id: string;
   title: string;
   content: string;
+  like_count: number;
   created_at?: string;
   updated_at?: string;
 }
 
-export interface GetPaginationRes {
+export interface GetPaginationReq {
+  user_id?: string;
+  page: number;
+  limit: number;
+}
+
+export interface PaginationRes {
   data: PostRes[];
   pagination: {
     page: number;
