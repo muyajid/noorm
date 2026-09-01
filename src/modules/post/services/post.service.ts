@@ -176,13 +176,19 @@ export const updatePostById = async (py: UpdatePostReq): Promise<PostRes> => {
       index++;
     }
 
+    if (fields.length == 0) {
+      throw createError(400, "Tidak ada data yang diubah");
+    }
+
     value.push(py.id);
+    value.push(py.user_id);
 
     const result = await db.query<PostRes>(
       `UPDATE posts 
           SET ${fields.join(", ")},
           updated_at = CURRENT_TIMESTAMP
           WHERE id = $${index}
+            AND user_id = $${index + 1}
           RETURNING id, title, content, updated_at`,
       value,
     );

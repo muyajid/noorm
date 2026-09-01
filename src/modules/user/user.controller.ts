@@ -44,7 +44,6 @@ export const upadateUser = async (
   next: NextFunction,
 ) => {
   try {
-    console.log("Hello")
     const { id } = req.params;
     const result = await updateUserById({id, ...req.body});
 

@@ -102,8 +102,9 @@ export const updatePost = async (
 ) => {
   try {
     const { id } = req.params;
+    const user = getUserFromJwt(req);
 
-    const result = await updatePostById({ id, ...req.body });
+    const result = await updatePostById({ id, user_id: user.id, ...req.body });
 
     return res.status(200).json({
       status: "success",

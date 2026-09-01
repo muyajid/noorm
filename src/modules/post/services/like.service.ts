@@ -4,6 +4,14 @@ import { LikeReq } from "../post/like.dto";
 
 export const likePostById = async (py: LikeReq): Promise<void> => {
   try {
+    if (py.post_id == undefined) {
+      throw createError(400, "Id postingan dibutuhkan");
+    }
+
+    if (py.user_id == undefined) {
+      throw createError(400, "Id pengguna dibutuhkan");
+    }
+
     const isPostExist = await db.query(`SELECT id FROM posts WHERE id = $1`, [
       py.post_id,
     ]);
@@ -30,7 +38,7 @@ export const unLikePostById = async (py: LikeReq): Promise<void> => {
       `DELETE
         FROM likes 
         WHERE user_id = $1 AND post_id = $2 `,
-      [py.user_id, py.post_id]
+      [py.user_id, py.post_id],
     );
 
     if (result.rowCount == 0) {

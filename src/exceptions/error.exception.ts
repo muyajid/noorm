@@ -1,7 +1,7 @@
 class AppError extends Error {
   public status: string;
   public statusCode: number;
-  public eror: unknown;
+  public error: unknown;
   constructor(
     status: string,
     statusCode: number,
@@ -11,7 +11,7 @@ class AppError extends Error {
     super(message);
     this.status = status;
     this.statusCode = statusCode;
-    this.eror = eror;
+    this.error = eror;
   }
 }
 
@@ -22,7 +22,7 @@ export const isAppEror = (err: any): boolean => {
 export const createError = (
   statusCode: number,
   message: string,
-  eror: unknown = null,
+  error: unknown = null,
 ) => {
-  return new AppError("failed", statusCode, message, eror);
+  return new AppError("failed", statusCode, message, error);
 };
