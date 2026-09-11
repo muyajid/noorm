@@ -1,6 +1,6 @@
 import { db } from "../../../configs/db.config";
 import { createError } from "../../../exceptions/error.exception";
-import { LikeReq } from "../post/like.dto";
+import { LikeReq } from "../dto/like.dto";
 
 export const likePostById = async (py: LikeReq): Promise<void> => {
   try {

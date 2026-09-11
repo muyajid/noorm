@@ -11,6 +11,7 @@ export interface PostRes {
   title: string;
   content: string;
   like_count: number;
+  comment_count: number;
   created_at?: string;
   updated_at?: string;
 }
@@ -72,5 +73,5 @@ export const updatePostSchema: ZodType = z.object({
     })
     .max(10000, {
       error: "Title maksimal 10.000 karakter",
-    }),
+    }).optional(),
 });

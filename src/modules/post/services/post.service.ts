@@ -6,7 +6,7 @@ import {
   PaginationRes,
   PostRes,
   UpdatePostReq,
-} from "../post/post.dto";
+} from "../dto/post.dto";
 
 export const createPostById = async (py: CreatePostReq): Promise<PostRes> => {
   try {
@@ -49,9 +49,11 @@ export const getAllPost = async (
     const posts = await db.query<PostRes>(
       `SELECT 
         p.id, p.title, p.content, p.created_at,
-        COUNT(l.id) AS like_count
+        COUNT(l.id) AS like_count,
+        COUNT(c.id) AS comment_count
       FROM posts p
       LEFT JOIN likes l ON p.id = l.post_id
+      LEFT JOIN comments c ON p.id = c.post_id
       GROUP BY p.id
       ORDER BY created_at DESC
       LIMIT $1
@@ -66,6 +68,7 @@ export const getAllPost = async (
       content: p.content,
       created_at: p.created_at,
       like_count: Number(p.like_count),
+      comment_count: Number(p.comment_count),
     }));
 
     const nextPage = page < totalPages ? page + 1 : null;
@@ -106,10 +109,12 @@ export const getPostById = async (
     const posts = await db.query<PostRes>(
       `SELECT 
         p.id, p.title, p.content, p.created_at,
-        COUNT(l.id) AS like_count
+        COUNT(l.id) AS like_count,
+        COUNT(c.id) AS comment_count
       FROM posts p
       LEFT JOIN likes l ON p.id = l.post_id
-      WHERE user_id = $3
+      LEFT JOIN comments c ON p.id = c.post_id
+      WHERE p.user_id = $3
       GROUP BY p.id
       ORDER BY created_at DESC
       LIMIT $1
@@ -124,6 +129,7 @@ export const getPostById = async (
       content: p.content,
       created_at: p.created_at,
       like_count: Number(p.like_count),
+      comment_count: Number(p.comment_count)
     }));
 
     const nextPage = page < totalPages ? page + 1 : null;

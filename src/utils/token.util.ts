@@ -26,14 +26,14 @@ export const makeAuthToken = (payload: UserPayload): string => {
   }
 };
 
-export const verifAuthToken = (token: string): UserPayload => {
+export const verifAuthToken = (token: string): UserPayload | null => {
   try {
     const decoded = jwt.verify(token, jwtSecret) as UserPayload;
 
     return decoded;
   } catch (error: any) {
     console.error(`Error during verif auth token: ${error.message}`);
-    throw error;
+    return null;
   }
 };
 
