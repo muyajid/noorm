@@ -21,10 +21,9 @@ import {
 const route = Router();
 
 // Post service including create update get and delete post
-
 route.post("/", authMiddleware, validateRequest(createPostSchema), createPost);
-route.get("/", authMiddleware, getPosts);
-route.get("/:id", authMiddleware, getPost);
+route.get("/", getPosts);
+route.get("/:id", getPost);
 route.delete("/:id", authMiddleware, deletePost);
 route.put(
   "/:id",

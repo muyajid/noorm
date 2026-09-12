@@ -57,10 +57,10 @@ export const getPost = async (
   try {
     const page: number = Number(req.query.page) || 1;
     const limit: number = Number(req.query.limit) || 10;
-    const { id } = getUserFromJwt(req);
+    const {id} = req.params;
 
     const result = await getPostById({
-      user_id: id,
+      user_id: id as string,
       page,
       limit,
     });
