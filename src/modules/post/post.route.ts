@@ -17,11 +17,18 @@ import {
   getReplyComment,
   replyComment,
 } from "./controller/comment.controller";
+import { rateLimitMiddleware } from "../../middlewares/rate-limit.middleware";
 
 const route = Router();
 
 // Post service including create update get and delete post
-route.post("/", authMiddleware, validateRequest(createPostSchema), createPost);
+route.post(
+  "/",
+  rateLimitMiddleware(),
+  authMiddleware,
+  validateRequest(createPostSchema),
+  createPost,
+);
 route.get("/", getPosts);
 route.get("/:id", getPost);
 route.delete("/:id", authMiddleware, deletePost);

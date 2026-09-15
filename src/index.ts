@@ -3,6 +3,7 @@ import express, { Request, Response } from "express";
 import { errorHandler } from "./exceptions/handler.exceptions";
 import routes from "./routes/index.route";
 import cors from "cors";
+import { initRedis } from "./configs/redis.config";
 
 configDotenv();
 const app: express.Express = express();
@@ -21,6 +22,8 @@ app.get("/", (req: Request, res: Response) => {
         status: "running"
     });
 });
+
+initRedis();
 
 app.use("/api", routes);
 app.use(errorHandler);
